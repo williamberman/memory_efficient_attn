@@ -81,10 +81,12 @@ def test_all():
         test_single_query_vector_attn,
         test_single_query_vector_attn_lazy_softmax,
     ]:
+        print(test.__name__)
         for d in range(1, 6):
             for kv_seq_len in range(1, 6):
                 test(d, kv_seq_len)
 
+    print(attn_lazy_softmax.__name__)
     for b in range(1, 3):
         for h in range(1, 3):
             for q_seq_len in range(1, 6):
@@ -92,6 +94,7 @@ def test_all():
                     for kv_seq_len in range(1, 6):
                         test_attn(b, h, q_seq_len, d, kv_seq_len, f=attn_lazy_softmax)
 
+    print(attn_split_kv.__name__)
     for b in range(1, 3):
         for h in range(1, 3):
             for q_seq_len in range(1, 6):
@@ -99,6 +102,7 @@ def test_all():
                     for kv_seq_len in [2, 4, 6]:
                         test_attn(b, h, q_seq_len, d, kv_seq_len, f=attn_split_kv)
 
+    print(attn_chunk_kv.__name__)
     for b in range(1, 3):
         for h in range(1, 3):
             for q_seq_len in range(1, 3):
@@ -121,6 +125,7 @@ def test_all():
         attn_chunk_kv_chunk_q,
         attn_chunk_kv_chunk_q_incremental,
     ]:
+        print(f.__name__)
         for b in range(1, 3):
             for h in range(1, 3):
                 for q_chunk_seq_len in range(1, 3):
@@ -142,6 +147,10 @@ def test_all():
                                     )
 
     if torch.cuda.is_available():
+        from attn_chunk_q_chunk_kv_cuda import attn_chunk_q_chunk_kv_cuda
+
+        print(attn_chunk_q_chunk_kv_cuda.__name__)
+
         for b in range(1, 3):
             for h in range(1, 3):
                 for q_seq_len in range(1, 6):
