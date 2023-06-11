@@ -62,6 +62,20 @@ def test_attn(
     assert np.allclose(out_torch.detach().numpy(), out)
 
 
+def test_attn_chunk_q_chunk_kv_cuda(b, h, q_seq_len, d, kv_seq_len):
+    from attn_chunk_q_chunk_kv_cuda import attn_chunk_q_chunk_kv_cuda
+
+    q = torch.rand((b, h, q_seq_len, d), device="cuda")
+    k = torch.rand((b, h, kv_seq_len, d), device="cuda")
+    v = k
+
+    out = attn_chunk_q_chunk_kv_cuda(q, k, v)
+
+    out_ = F.scaled_dot_product_attention(q, k, v)
+
+    assert torch.allclose(out_, out)
+
+
 def test_all():
     for test in [
         test_single_query_vector_attn,
@@ -126,6 +140,18 @@ def test_all():
                                         kv_chunk_seq_len,
                                         f=f,
                                     )
+
+    if torch.cuda.is_available():
+        for b in range(1, 3):
+            for h in range(1, 3):
+                for q_seq_len in range(1, 6):
+                    for d in range(1, 6):
+                        for kv_seq_len in range(1, 6):
+                            test_attn_chunk_q_chunk_kv_cuda(
+                                b, h, q_seq_len, d, kv_seq_len
+                            )
+    else:
+        print("cuda not available, skipping cuda tests")
 
 
 if __name__ == "__main__":
